@@ -1,0 +1,101 @@
+<style>
+.element {
+  width: 10vh;
+  height: 10vh;
+  border-radius: 2vh;
+  position: relative;
+  left:2.5vh;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.row {
+  width: 100vw;
+  padding: 1vh;
+}
+
+.movable {
+  position: absolute !important;
+}
+</style>
+
+<div class="main" style="scroll: overflow;">
+    <div :style='"background-color:" + c.SelectedColor + "; color: " + c.CalcColor(c.SelectedColor)' vg-content="c.Selected.Name" class="element movable" id="elem" vg-if="c.Showing"></div>
+
+    <span vg-if="!c.Init" vg-content='c.Initialize()'>Loading...</span>
+
+    <div class="row" vg-for="colInd, color := range c.Colors">
+      <div vg-for="_, element := range (*c.Elements)" :style='"background-color:" + color + "; color: " + c.CalcColor(color)' vg-content="element.Name" vg-if="colInd == element.Color && c.IsFound(element.Index)" class="element" @click="c.Show(element, color)"></div>
+    </div>
+
+	  <div style="width: 100vw; height: 100vh; position: fixed; top: 0; left:0; bottom:0; right:0; z-index:-100;" @click="c.Showing = false"></div>
+</div>
+
+<script type="application/x-go">
+type Elemental struct {
+    Init bool `vugu:"data"`
+	Showing bool `vugu:"data"`
+    Elements *[]Element `vugu:"data"`
+    Found *map[int]bool `vugu:"data"`
+    Colors []string `vugu:"data"`
+    Selected Element `vugu:"data"`
+    SelectedColor string `vugu:"data"`
+    Handle func(error)
+}
+
+func (c *Elemental) Initialize() string {
+	move := func(this Value, inputs []Value) interface{} {
+		if c.Showing {
+			document := Global().Get("document")
+			e := inputs[0]
+			document.Call("getElementById", "elem").Get("style").Set("left", fmt.Sprintf("%dpx", e.Get("clientX").Int()))
+			document.Call("getElementById", "elem").Get("style").Set("top", fmt.Sprintf("%dpx", e.Get("clientY").Int()))
+		}
+		return ""
+	}
+	jsFunc := FuncOf(move)
+	c.Init = true
+	Global().Get("document").Set("onmousemove", jsFunc)
+	return ""
+}
+
+func (c *Elemental) CalcColor(bg string) string {
+  bgColor := bg[1:len(bg)]
+  rgb, err := hex.DecodeString(bgColor)
+  c.Handle(err)
+  average := (int(rgb[0]) + int(rgb[1]) + int(rgb[2])) / 3
+  if average < 127 {
+    return "#ffffff"
+  }
+  return "#000000"
+}
+
+func (c *Elemental) Show(elem Element, color string) {
+  if !c.Showing {
+    c.Showing = true
+    c.Selected = elem
+    c.SelectedColor = color
+  } else {
+    var first Element
+    var second Element
+    if elem.Index < c.Selected.Index {
+      first = elem
+      second = c.Selected
+    } else {
+      first = c.Selected
+      second = elem
+    }
+    _, has_product := first.Products[second.Index]
+    if has_product {
+      (*c.Found)[first.Products[second.Index]] = true
+    }
+    c.Showing = false
+  }
+}
+
+func (c *Elemental) IsFound(index int) bool {
+  _, found := (*c.Found)[index]
+  return found
+}
+
+</script>
