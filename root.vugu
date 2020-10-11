@@ -1,3 +1,24 @@
+<style>
+.element {
+  width: 10vh;
+  height: 10vh;
+  border-radius: 2vh;
+  position: relative;
+  left:2.5vh;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.row {
+  width: 100vw;
+  padding: 1vh;
+}
+
+.movable {
+  position: absolute !important;
+}
+</style>
+
 <div>
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
@@ -21,11 +42,143 @@
       </nav>
     </div>
   </nav>
+
+  <div class="main" style="scroll: overflow;">
+    <div :style='"background-color:" + c.SelectedColor + "; color: " + c.CalcColor(c.SelectedColor)' vg-content="c.Selected.Name" class="element movable" id="elem" vg-if="c.Showing"></div>
+
+    <span vg-if="!c.Init" vg-content='c.Initialize()'>Loading...</span>
+
+    <div class="row" vg-for="colInd, color := range c.Colors">
+      <div vg-for="_, element := range c.Elements" :style='"background-color:" + color + "; color: " + c.CalcColor(color)' vg-content="element.Name" vg-if="colInd == element.Color && c.IsFound(element.Index)" class="element" @click="c.Show(element, color)"></div>
+    </div>
+
+	  <div style="width: 100vw; height: 100vh; position: fixed; top: 0; left:0; bottom:0; right:0; z-index:-100;" @click="c.Showing = false"></div>
+  </div>
 </div>
 
 <script type="application/x-go">
+import . "syscall/js"
+import "encoding/hex"
+
+var colors = []string{"#eeeeee", "#ee0000", "#00ee00", "#0000ee"}
+
+type Element struct {
+  Name string
+  Creator string
+  Products map[int]int
+  Color int
+  Index int
+}
+
+type User struct {
+  Username string
+  Found []int
+}
+
+// Prototype
+var elements = []Element{
+  Element{
+    Name: "Air",
+    Creator: "Nv7",
+    Color: 0,
+    Products: map[int]int{
+      1: 2,
+    },
+    Index: 0,
+  },
+  Element{
+    Name: "Fire",
+    Creator:"Nv7",
+    Color: 1,
+    Products: make(map[int]int, 0),
+    Index: 1,
+  },
+  Element{
+    Name: "Energy",
+    Creator:"Nv7",
+    Color: 2,
+    Products: make(map[int]int, 0),
+    Index: 2,
+  },
+}
+
+var found = map[int]bool{
+  0: true,
+  1: true,
+}
 
 type Root struct {
+	Init bool `vugu:"data"`
+	Showing bool `vugu:"data"`
+  Elements []Element `vugu:"data"`
+  Found map[int]bool `vugu:"data"`
+  Colors []string `vugu:"data"`
+  Selected Element `vugu:"data"`
+  SelectedColor string `vugu:"data"`
+}
+
+func (c *Root) Initialize() string {
+	move := func(this Value, inputs []Value) interface{} {
+		if c.Showing {
+			document := Global().Get("document")
+			e := inputs[0]
+			document.Call("getElementById", "elem").Get("style").Set("left", fmt.Sprintf("%dpx", e.Get("clientX").Int()))
+			document.Call("getElementById", "elem").Get("style").Set("top", fmt.Sprintf("%dpx", e.Get("clientY").Int()))
+		}
+		return ""
+	}
+	jsFunc := FuncOf(move)
+	c.Init = true
+	Global().Get("document").Set("onmousemove", jsFunc)
+  c.Colors = colors
+  c.Elements = elements
+  c.Found = found
+	return ""
+}
+
+func (c *Root) Handle(err error) {
+  if err != nil {
+    panic(err)
+  }
+}
+
+func (c *Root) CalcColor(bg string) string {
+  bgColor := bg[1:len(bg)]
+  rgb, err := hex.DecodeString(bgColor)
+  c.Handle(err)
+  average := (int(rgb[0]) + int(rgb[1]) + int(rgb[2])) / 3
+  if average < 127 {
+    return "#ffffff"
+  }
+  return "#000000"
+}
+
+func (c *Root) Show(elem Element, color string) {
+  if !c.Showing {
+    c.Showing = true
+    c.Selected = elem
+    c.SelectedColor = color
+  } else {
+    var first Element
+    var second Element
+    if elem.Index < c.Selected.Index {
+      first = elem
+      second = c.Selected
+    } else {
+      first = c.Selected
+      second = elem
+    }
+    _, has_product := first.Products[second.Index]
+    if has_product {
+      c.Found[first.Products[second.Index]] = true
+    }
+    c.Showing = false
+  }
+}
+
+func (c *Root) IsFound(index int) bool {
+  _, found := c.Found[index]
+  return found
 }
 
 </script>
