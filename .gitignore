@@ -1,5 +1,11 @@
+# Vugu
 bin
 **_vgen.go
 .vscode
+
+# Firebase Hosting
 .firebaserc
 firebase.json
+
+# Firebase
+credentials.go
