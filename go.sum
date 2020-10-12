@@ -10,6 +10,7 @@ github.com/mailru/easyjson v0.7.0/go.mod h1:KAzv3t3aY1NaHWoQz1+4F1ccyAH66Jk7yos7
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/testify v1.4.0/go.mod h1:j7eGeouHqKxXV5pUuKE4zz7dFj8WfuZ+81PSLYec5m4=
+github.com/vugu/html v0.0.0-20190914200101-c62dc20b8289 h1:w3hfLuU5tKlcf+hhfmx6UZ5IC1h5M69dL9/6uugfLj8=
 github.com/vugu/html v0.0.0-20190914200101-c62dc20b8289/go.mod h1:Y3pLGz8dZUSrB9SARXqFmtW8RNs4HIGAr0+JaWL31Vg=
 github.com/vugu/vjson v0.0.0-20200505061711-f9cbed27d3d9 h1:0cwYt2uGUAwxOYF6zAkVvCKWt8zOV3JhQqjvwKb6jf0=
 github.com/vugu/vjson v0.0.0-20200505061711-f9cbed27d3d9/go.mod h1:z7mAqSUjRDMQ09NIO18jG2llXMHLnUHlZ3/8MEMyBPA=
