@@ -3,5 +3,5 @@ package main
 const (
 	apiKey         string = `API_KEY`
 	databaseURL    string = `DATABASE_URL`
-	serviceAccount []byte = []byte(`SERVICEACCOUNT`) // Go to the Project Settings tab, go into the service accounts tab, and press "Generate New Private Key". Then, copy the JSON into this variable
+	serviceAccount string = `SERVICEACCOUNT` // Go to the Project Settings tab, go into the service accounts tab, and press "Generate New Private Key". Then, copy the JSON into this variable
 )
