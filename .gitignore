@@ -1,3 +1,5 @@
 bin
 **_vgen.go
 .vscode
+.firebaserc
+firebase.json
