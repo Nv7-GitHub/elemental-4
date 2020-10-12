@@ -1,4 +1,4 @@
-module github.com/Nv7-Github/nv7-github.github.io
+module github.com/Nv7-Github/elemental-4
 
 go 1.15
 
