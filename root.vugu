@@ -46,7 +46,7 @@ type Element struct {
 }
 
 type User struct {
-  Found []int
+  Found map[int]bool
 }
 
 // Prototype
