@@ -1,0 +1,87 @@
+<style>
+html, body {
+  height: 100%;
+}
+
+.form-signin {
+  width: 100%;
+  max-width: 330px;
+  padding: 15px;
+  margin: auto;
+}
+.form-signin .checkbox {
+  font-weight: 400;
+}
+.form-signin .form-control {
+  position: relative;
+  box-sizing: border-box;
+  height: auto;
+  padding: 10px;
+  font-size: 16px;
+}
+.form-signin .form-control:focus {
+  z-index: 2;
+}
+#inputEmail {
+  margin-bottom: -1px;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+#inputPassword {
+  margin-bottom: 10px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+</style>
+
+<div class="main">
+    <span vg-if="!c.Init" vg-content='c.Initialize()'>Loading...</span>
+    <div class="alert alert-warning alert-dismissible fade show" role="alert" id="alert" vg-if="c.HasError">
+      <strong>Error!</strong> <span vg-html="c.ErrorMessage"></span>
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close" @click="c.HasError = false">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <form class="form-signin">
+        <div align="center"><img class="mb-4" src="/logo.svg" alt="" width="120" height="120"></div>
+        <h1 class="h3 mb-3 font-weight-normal" align="center">Account</h1>
+        <label for="inputEmail" class="sr-only">Email address</label>
+        <vgform:Input :Value="vgform.StringPtr{&c.Email}" type="email" id="inputEmail" class="form-control" placeholder="Email address"></vgform:Input>
+        <label for="inputPassword" class="sr-only">Password</label>
+        <vgform:Input :Value="vgform.StringPtr{&c.Password}" type="password" id="inputPassword" class="form-control" placeholder="Password"></vgform:Input>
+        <button class="btn btn-lg btn-primary btn-block" type="reset" @click="c.Login()">Sign in</button>
+    </form>
+</div>
+
+<script type="application/x-go">
+type Login struct {
+    Init bool `vugu:"data"`
+    App *firebase.Firebase
+    Handle func(error)
+    Auth *auth.Auth
+    Email string `vugu:"data"`
+    Password string `vugu:"data"`
+    HasError bool `vugu:"data"`
+    ErrorMessage string `vugu:"data"`
+    Logged func(string)
+}
+
+func (c *Login) Initialize() string {
+    c.Auth = auth.CreateAuth(c.App)
+    return ""
+}
+
+func (c *Login) SignIn() {
+  user, err := c.Auth.SignInWithEmailAndPassword(c.Email, c.Password)
+  if err != nil {
+      c.HasError = true
+      c.ErrorMessage = err.Error()
+      return
+  }
+  c.Logged(user.IDToken)
+}
+
+func (c *Login) Login() {
+    go c.SignIn()
+}
+</script>
