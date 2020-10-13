@@ -42,6 +42,7 @@ type Element struct {
   Products map[int]int
   Color int
   Index int
+  Created string
 }
 
 type User struct {
@@ -60,6 +61,7 @@ var elements = []Element{
       1: 4,
     },
     Index: 0,
+    Created: "At the dawn of time",
   },
   Element{
     Name: "Air",
@@ -67,6 +69,7 @@ var elements = []Element{
     Color: 1,
     Products: map[int]int{},
     Index: 1,
+    Created: "At the dawn of time",
   },
   Element{
     Name: "Fire",
@@ -76,6 +79,7 @@ var elements = []Element{
       3: 5,
     },
     Index: 2,
+    Created: "At the dawn of time",
   },
   Element{
     Name: "Water",
@@ -83,6 +87,7 @@ var elements = []Element{
     Color: 3,
     Products: map[int]int{},
     Index: 3,
+    Created: "At the dawn of time",
   },
   Element{
     Name: "Dust",
@@ -90,6 +95,7 @@ var elements = []Element{
     Color: 0,
     Products: map[int]int{},
     Index: 4,
+    Created: "At the dawn of time",
   },
   Element{
     Name: "Acid",
@@ -97,6 +103,7 @@ var elements = []Element{
     Color: 3,
     Products: map[int]int{},
     Index: 5,
+    Created: "At the dawn of time",
   },
 }
 
