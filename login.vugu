@@ -51,6 +51,7 @@ html, body {
         <vgform:Input :Value="vgform.StringPtr{&c.Password}" type="password" id="inputPassword" class="form-control" placeholder="Password"></vgform:Input>
         <button class="btn btn-lg btn-primary btn-block" type="reset" @click="c.Login(event)"><span vg-if="!c.Registering">Sign in</span><span vg-if="c.Registering">Register</span></button>
         <a @click="c.Registering = !c.Registering" href="#"><span vg-if="c.Registering">Already have an account? Sign in!</span><span vg-if="!c.Registering">Need an account? Register!</span></a>
+        <a vg-if="!c.Registering" href="#" @click="c.ResetPassword(event)">Forgot your password? Reset it!</a>
     </form>
     <img style="position: absolute; top: 50%; left: 50%;" src="https://cdnjs.cloudflare.com/ajax/libs/galleriffic/2.0.1/css/loader.gif" vg-if="c.Loading">
 </div>
@@ -121,6 +122,18 @@ func (c *Login) Login(event vugu.DOMEvent) {
   } else {
     go c.SignIn(event)
   }
+  c.Loading = true
+}
+
+func (c *Login) Reset(ee vugu.EventEnv) {
+  c.Auth.ResetPassword(c.Email)
+  ee.Lock()
+  c.Loading = false
+  ee.UnlockRender()
+}
+
+func (c *Login) ResetPassword(event vugu.DOMEvent) {
+  go c.Reset(event.EventEnv())
   c.Loading = true
 }
 </script>
