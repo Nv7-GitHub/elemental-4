@@ -48,7 +48,7 @@ type User struct {
 }
 
 // Prototype
-  var colors = []string{"#B4D8FC", "#B79370", "#FF932E", "#4C93FF"}
+var colors = []string{"#B79370", "#B4D8FC", "#FF932E", "#4C93FF"}
 
 var elements = []Element{
   Element{
