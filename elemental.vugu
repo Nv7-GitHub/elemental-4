@@ -17,6 +17,10 @@
 .movable {
   position: absolute !important;
 }
+
+.fixed {
+  margin-right: 1vh;
+}
 </style>
 
 <div class="main" style="scroll: overflow;">
@@ -25,7 +29,7 @@
     <span vg-if="!c.Init" vg-content='c.Initialize()'>Loading...</span>
 
     <div class="row" vg-for="colInd, color := range c.Colors">
-      <div vg-for="_, element := range (*c.Elements)" :style='"background-color:" + color + "; color: " + c.CalcColor(color)' vg-content="element.Name" vg-if="colInd == element.Color && c.IsFound(element.Index)" class="element" @click="c.Show(element, color)"></div>
+      <div vg-for="_, element := range (*c.Elements)" :style='"background-color:" + color + "; color: " + c.CalcColor(color)' vg-content="element.Name" vg-if="colInd == element.Color && c.IsFound(element.Index)" class="element fixed" @click="c.Show(element, color)"></div>
     </div>
 
 	  <div style="width: 100vw; height: 100vh; position: fixed; top: 0; left:0; bottom:0; right:0; z-index:-100;" @click="c.Showing = false"></div>
@@ -34,13 +38,14 @@
 <script type="application/x-go">
 type Elemental struct {
     Init bool `vugu:"data"`
-	Showing bool `vugu:"data"`
+	  Showing bool `vugu:"data"`
     Elements *[]Element `vugu:"data"`
     Found *map[int]bool `vugu:"data"`
     Colors []string `vugu:"data"`
     Selected Element `vugu:"data"`
     SelectedColor string `vugu:"data"`
     Handle func(error)
+    FoundElement func(map[int]bool)
 }
 
 func (c *Elemental) Initialize() string {
@@ -88,6 +93,7 @@ func (c *Elemental) Show(elem Element, color string) {
     _, has_product := first.Products[second.Index]
     if has_product {
       (*c.Found)[first.Products[second.Index]] = true
+      c.FoundElement(*c.Found)
     }
     c.Showing = false
   }
