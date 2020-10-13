@@ -7,6 +7,7 @@ type Networking struct {
     Init bool
     Id string
     App *firebase.Firebase
+    Db *db.Db
     Elements *[]Element
     FoundElement *func(map[int]bool)
 }
@@ -15,6 +16,7 @@ func (c *Networking) Initialize() string {
     (*c.FoundElement) = func (found map[int]bool) {
         fmt.Println(found)
     }
+    c.Db = db.CreateDatabase(c.App)
     return ""
 }
 </script>

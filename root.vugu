@@ -33,6 +33,7 @@ import . "syscall/js"
 import "encoding/hex"
 import "github.com/Nv7-Github/firebase"
 import "github.com/Nv7-Github/firebase/auth"
+import "github.com/Nv7-Github/firebase/db"
 import "github.com/vugu/vugu/vgform"
 
 type Element struct {
