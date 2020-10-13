@@ -49,8 +49,10 @@ html, body {
         <vgform:Input :Value="vgform.StringPtr{&c.Email}" type="email" id="inputEmail" class="form-control" placeholder="Email address"></vgform:Input>
         <label for="inputPassword" class="sr-only">Password</label>
         <vgform:Input :Value="vgform.StringPtr{&c.Password}" type="password" id="inputPassword" class="form-control" placeholder="Password"></vgform:Input>
-        <button class="btn btn-lg btn-primary btn-block" type="reset" @click="c.Login(event)">Sign in</button>
+        <button class="btn btn-lg btn-primary btn-block" type="reset" @click="c.Login(event)"><span vg-if="!c.Registering">Sign in</span><span vg-if="c.Registering">Register</span></button>
+        <a @click="c.Registering = !c.Registering" href="#"><span vg-if="c.Registering">Already have an account? Sign in!</span><span vg-if="!c.Registering">Need an account? Register!</span></a>
     </form>
+    <img style="position: absolute; top: 50%; left: 50%;" src="https://cdnjs.cloudflare.com/ajax/libs/galleriffic/2.0.1/css/loader.gif" vg-if="c.Loading">
 </div>
 
 <script type="application/x-go">
@@ -64,24 +66,61 @@ type Login struct {
     HasError bool `vugu:"data"`
     ErrorMessage string `vugu:"data"`
     Logged func(string, vugu.EventEnv)
+    Registering bool `vugu:"data"`
+    Loading bool `vugu:"data"`
 }
 
 func (c *Login) Initialize() string {
     c.Auth = auth.CreateAuth(c.App)
+    c.Init = true
     return ""
 }
 
 func (c *Login) SignIn(event vugu.DOMEvent) {
   user, err := c.Auth.SignInWithEmailAndPassword(c.Email, c.Password)
   if err != nil {
+      ee := event.EventEnv()
+      ee.Lock()
       c.HasError = true
       c.ErrorMessage = err.Error()
+      c.Loading = false
+      ee.UnlockRender()
       return
   }
-  c.Logged(user.IDToken, event.EventEnv())
+  c.Logged(user.OtherData.LocalID, event.EventEnv())
+}
+
+func (c *Login) Register(event vugu.DOMEvent) {
+  user, err := c.Auth.SignUpWithEmailAndPassword(c.Email, c.Password)
+  if err != nil {
+      ee := event.EventEnv()
+      ee.Lock()
+      c.HasError = true
+      c.ErrorMessage = err.Error()
+      c.Loading = false
+      ee.UnlockRender()
+      return
+  }
+  database := db.CreateDatabase(c.App)
+  err = database.SetData(user.OtherData.LocalID, User{Found: found})
+  if err != nil {
+      ee := event.EventEnv()
+      ee.Lock()
+      c.HasError = true
+      c.ErrorMessage = err.Error()
+      c.Loading = false
+      ee.UnlockRender()
+      return
+  }
+  c.Logged(user.OtherData.LocalID, event.EventEnv())
 }
 
 func (c *Login) Login(event vugu.DOMEvent) {
+  if c.Registering {
+    go c.Register(event)
+  } else {
     go c.SignIn(event)
+  }
+  c.Loading = true
 }
 </script>

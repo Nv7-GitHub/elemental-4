@@ -17,6 +17,7 @@ func (c *Networking) Initialize() string {
         fmt.Println(found)
     }
     c.Db = db.CreateDatabase(c.App)
+    c.Init = true
     return ""
 }
 </script>
