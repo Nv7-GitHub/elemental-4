@@ -23,14 +23,17 @@
   </nav>
 
   <span vg-if="!c.Init" vg-content='c.Initialize()'>Loading...</span>
-  <main:Elemental :Elements="&c.Elements" :Found="&c.Found" :Colors="c.Colors" :Handle="c.Handle"></main:Elemental>
+  <main:Elemental :Elements="&c.Elements" :Found="&c.Found" :Colors="c.Colors" :Handle="c.Handle" vg-if="c.Logged" :FoundElement="c.FoundElement"></main:Elemental>
+  <main:Login vg-if="!c.Logged" :Handle="c.Handle" :App="c.App" :Logged="c.LoggedIn"></main:Login>
+  <main:Networking :App="c.App" :Id="c.Id" :Elements="&c.Elements" :FoundElement="&c.FoundElement"></main:Networking>
 </div>
 
 <script type="application/x-go">
 import . "syscall/js"
 import "encoding/hex"
-
-var colors = []string{"#eeeeee", "#ee0000", "#00ee00", "#0000ee"}
+import "github.com/Nv7-Github/firebase"
+import "github.com/Nv7-Github/firebase/auth"
+import "github.com/vugu/vugu/vgform"
 
 type Element struct {
   Name string
@@ -41,40 +44,66 @@ type Element struct {
 }
 
 type User struct {
-  Username string
   Found []int
 }
 
 // Prototype
+  var colors = []string{"#B4D8FC", "#B79370", "#FF932E", "#4C93FF"}
+
 var elements = []Element{
   Element{
-    Name: "Air",
+    Name: "Earth",
     Creator: "Nv7",
     Color: 0,
     Products: map[int]int{
-      1: 2,
+      1: 4,
     },
     Index: 0,
   },
   Element{
-    Name: "Fire",
+    Name: "Air",
     Creator:"Nv7",
     Color: 1,
-    Products: make(map[int]int, 0),
+    Products: map[int]int{},
     Index: 1,
   },
   Element{
-    Name: "Energy",
+    Name: "Fire",
     Creator:"Nv7",
     Color: 2,
-    Products: make(map[int]int, 0),
+    Products: map[int]int{
+      3: 5,
+    },
     Index: 2,
+  },
+  Element{
+    Name: "Water",
+    Creator:"Nv7",
+    Color: 3,
+    Products: map[int]int{},
+    Index: 3,
+  },
+  Element{
+    Name: "Dust",
+    Creator:"Nv7",
+    Color: 0,
+    Products: map[int]int{},
+    Index: 4,
+  },
+  Element{
+    Name: "Acid",
+    Creator:"Nv7",
+    Color: 3,
+    Products: map[int]int{},
+    Index: 5,
   },
 }
 
 var found = map[int]bool{
   0: true,
   1: true,
+  2: true,
+  3: true,
 }
 
 type Root struct {
@@ -83,6 +112,10 @@ type Root struct {
   Elements []Element `vugu:"data"`
   Found map[int]bool `vugu:"data"`
   Colors []string `vugu:"data"`
+  App *firebase.Firebase
+  Logged bool `vugu:"data"`
+  Id string `vugu:"data"`
+  FoundElement func(map[int]bool)
 }
 
 func (c *Root) Handle(err error) {
@@ -95,6 +128,20 @@ func (c *Root) Initialize() string {
   c.Colors = colors
   c.Found = found
   c.Elements = elements
+
+  var err error
+  c.App, err = firebase.CreateAppWithServiceAccount(databaseURL, apiKey, []byte(serviceAccount))
+  c.Handle(err)
+  c.App.Prefix = "https://cors-anywhere.herokuapp.com/"
+	c.App.Headers["X-Requested-With"] = ""
+  c.Id = "REE"
+
   return ""
+}
+
+func (c *Root) LoggedIn(id string) {
+  c.Logged = true
+  c.Id = id
+  fmt.Println("Logged in!")
 }
 </script>
