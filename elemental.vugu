@@ -91,7 +91,7 @@ func (c *Elemental) Show(elem Element, color string) {
       second = elem
     }
     _, has_product := first.Products[second.Index]
-    if has_product {
+    if has_product && (!c.IsFound(first.Products[second.Index])) {
       (*c.Found) = append((*c.Found), first.Products[second.Index])
       sort.Ints(*c.Found)
       c.FoundElement(*c.Found)
