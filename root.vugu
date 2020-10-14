@@ -25,7 +25,7 @@
   <span vg-if="!c.Init" vg-content='c.Initialize()'>Loading...</span>
   <main:Elemental :Elements="&c.Elements" :Found="&c.Found" :Colors="c.Colors" :Handle="c.Handle" vg-if="c.Logged" :FoundElement="c.FoundElement"></main:Elemental>
   <main:Login vg-if="!c.Logged" :Handle="c.Handle" :App="c.App" :Logged="c.LoggedIn"></main:Login>
-  <main:Networking :App="c.App" :Id="c.Id" :Elements="&c.Elements" :FoundElement="&c.FoundElement"></main:Networking>
+  <main:Networking :App="c.App" :Id="c.Id" :Elements="&c.Elements" :FoundElement="&c.FoundElement" :Handle="c.Handle" :Found="&c.Found" vg-if="c.Logged" :Event="c.Event"></main:Networking>
 </div>
 
 <script type="application/x-go">
@@ -35,6 +35,8 @@ import "github.com/Nv7-Github/firebase"
 import "github.com/Nv7-Github/firebase/auth"
 import "github.com/Nv7-Github/firebase/db"
 import "github.com/vugu/vugu/vgform"
+import "encoding/json"
+import "sort"
 
 type Element struct {
   Name string
@@ -46,7 +48,7 @@ type Element struct {
 }
 
 type User struct {
-  Found map[int]bool
+  Found []int
 }
 
 // Prototype
@@ -107,23 +109,19 @@ var elements = []Element{
   },
 }
 
-var found = map[int]bool{
-  0: true,
-  1: true,
-  2: true,
-  3: true,
-}
+var found = []int{0, 1, 2, 3}
 
 type Root struct {
   Init bool `vugu:"data"`
 	Showing bool `vugu:"data"`
   Elements []Element `vugu:"data"`
-  Found map[int]bool `vugu:"data"`
+  Found []int `vugu:"data"`
   Colors []string `vugu:"data"`
   App *firebase.Firebase
   Logged bool `vugu:"data"`
   Id string `vugu:"data"`
-  FoundElement func(map[int]bool)
+  FoundElement func([]int)
+  Event vugu.EventEnv
 }
 
 func (c *Root) Handle(err error) {
@@ -134,7 +132,6 @@ func (c *Root) Handle(err error) {
 
 func (c *Root) Initialize() string {
   c.Colors = colors
-  c.Found = found
   c.Elements = elements
 
   var err error
@@ -151,6 +148,6 @@ func (c *Root) LoggedIn(id string, event vugu.EventEnv) {
   c.Logged = true
   c.Id = id
   event.UnlockRender()
-  fmt.Println("Logged in!")
+  c.Event = event
 }
 </script>

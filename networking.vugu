@@ -9,15 +9,34 @@ type Networking struct {
     App *firebase.Firebase
     Db *db.Db
     Elements *[]Element
-    FoundElement *func(map[int]bool)
+    FoundElement *func([]int)
+    Handle func(error)
+    Found *[]int
+    Event vugu.EventEnv
+}
+
+func (c *Networking) UpdateFound(found []int) {
+    c.Db.SetData("/" + c.Id + "/Found", found)
+}
+
+func (c *Networking) GetFound() {
+    foundData, err := c.Db.Get("/" + c.Id)
+    c.Handle(err)
+    var found User
+    err = json.Unmarshal(foundData, &found)
+    c.Handle(err)
+    c.Event.Lock()
+    (*c.Found) = found.Found
+    c.Event.UnlockRender()
 }
 
 func (c *Networking) Initialize() string {
-    (*c.FoundElement) = func (found map[int]bool) {
-        fmt.Println(found)
+    (*c.FoundElement) = func (found []int) {
+        go c.UpdateFound(found)
     }
     c.Db = db.CreateDatabase(c.App)
     c.Init = true
+    go c.GetFound()
     return ""
 }
 </script>

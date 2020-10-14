@@ -50,7 +50,7 @@ html, body {
         <label for="inputPassword" class="sr-only">Password</label>
         <vgform:Input :Value="vgform.StringPtr{&c.Password}" type="password" id="inputPassword" class="form-control" placeholder="Password"></vgform:Input>
         <button class="btn btn-lg btn-primary btn-block" type="reset" @click="c.Login(event)"><span vg-if="!c.Registering">Sign in</span><span vg-if="c.Registering">Register</span></button>
-        <a @click="c.Registering = !c.Registering" href="#"><span vg-if="c.Registering">Already have an account? Sign in!</span><span vg-if="!c.Registering">Need an account? Register!</span></a>
+        <a @click="c.Registering = !c.Registering" href="#"><span vg-if="c.Registering">Already have an account? Sign in!</span><span vg-if="!c.Registering">Need an account? Register!</span></a><br>
         <a vg-if="!c.Registering" href="#" @click="c.ResetPassword(event)">Forgot your password? Reset it!</a>
     </form>
     <img style="position: absolute; top: 50%; left: 50%;" src="https://cdnjs.cloudflare.com/ajax/libs/galleriffic/2.0.1/css/loader.gif" vg-if="c.Loading">

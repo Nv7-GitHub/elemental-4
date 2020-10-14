@@ -40,12 +40,12 @@ type Elemental struct {
     Init bool `vugu:"data"`
 	  Showing bool `vugu:"data"`
     Elements *[]Element `vugu:"data"`
-    Found *map[int]bool `vugu:"data"`
+    Found *[]int `vugu:"data"`
     Colors []string `vugu:"data"`
     Selected Element `vugu:"data"`
     SelectedColor string `vugu:"data"`
     Handle func(error)
-    FoundElement func(map[int]bool)
+    FoundElement func([]int)
 }
 
 func (c *Elemental) Initialize() string {
@@ -92,7 +92,8 @@ func (c *Elemental) Show(elem Element, color string) {
     }
     _, has_product := first.Products[second.Index]
     if has_product {
-      (*c.Found)[first.Products[second.Index]] = true
+      (*c.Found) = append((*c.Found), first.Products[second.Index])
+      sort.Ints(*c.Found)
       c.FoundElement(*c.Found)
     }
     c.Showing = false
@@ -100,8 +101,16 @@ func (c *Elemental) Show(elem Element, color string) {
 }
 
 func (c *Elemental) IsFound(index int) bool {
-  _, found := (*c.Found)[index]
-  return found
+  if len(*c.Found) > 0 {
+    item := sort.SearchInts(*c.Found, index)
+    if item < len(*c.Found) {
+      return true
+    } else {
+      
+      return false
+    }
+  }
+  return false
 }
 
 </script>
