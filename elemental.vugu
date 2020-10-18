@@ -101,7 +101,7 @@ func (c *Elemental) Show(elem Element, color string) {
       (*c.Found) = append((*c.Found), first.Products[second.Index])
       sort.Ints(*c.Found)
       c.FoundElement(*c.Found)
-    } else {
+    } else if !has_product{
       c.Showing = false
       c.Suggestion = Suggestion{
         NewElement: Element {
@@ -117,6 +117,7 @@ func (c *Elemental) Show(elem Element, color string) {
       }
       (*c.SuggestDisabled) = false
     }
+    c.Showing = false
   }
 }
 
