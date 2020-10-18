@@ -18,7 +18,7 @@
             <a class="nav-link">Something Else</a>
           </li>
           <form class="form-inline">
-            <button @click="c.NewSuggestion()" vg-attr="vugu.VGAttributeListerFunc(c.SuggestBtn)">Suggest</button>
+            <button vg-attr="vugu.VGAttributeListerFunc(c.SuggestBtn)">Suggest</button>
           </form>
         </ul>
       </nav>
@@ -26,7 +26,7 @@
   </nav>
 
   <span vg-if="!c.Init" vg-content='c.Initialize()'>Loading...</span>
-  <main:Elemental :Elements="&c.Elements" :Found="&c.Found" :Colors="c.Colors" :Handle="c.Handle" vg-if="c.Logged" :FoundElement="c.FoundElement" :SuggestElement="&c.SuggestElement" :SuggestDisabled='&c.SuggestDisabled' :NewSuggestion="&c.NewSuggestion" :Username="&c.Username"></main:Elemental>
+  <main:Elemental :Elements="&c.Elements" :Found="&c.Found" :Colors="c.Colors" :Handle="c.Handle" vg-if="c.Logged" :FoundElement="c.FoundElement" :SuggestElement="&c.SuggestElement" :SuggestDisabled='&c.SuggestDisabled' :Username="&c.Username"></main:Elemental>
   <main:Login vg-if="!c.Logged" :Handle="c.Handle" :App="c.App" :Logged="c.LoggedIn"></main:Login>
   <main:Networking :App="c.App" :Id="c.Id" :Elements="&c.Elements" :FoundElement="&c.FoundElement" :Handle="c.Handle" :Found="&c.Found" vg-if="c.Logged" :Event="c.Event" :SuggestElement="&c.SuggestElement"></main:Networking>
 </div>
@@ -135,7 +135,6 @@ type Root struct {
   SuggestElement func(vugu.EventEnv, Suggestion)
   SuggestDisabled bool `vugu:"data"`
   Event vugu.EventEnv
-  NewSuggestion func()
   Username string `vugu:"data"`
 }
 
@@ -177,6 +176,14 @@ func (c *Root) SuggestBtn() (ret []vugu.VGAttribute) {
   vugu.VGAttribute{
     Key:"type",
     Val:"reset",
+  },
+  vugu.VGAttribute{
+    Key:"data-toggle",
+    Val:"modal",
+  },
+  vugu.VGAttribute{
+    Key:"data-target",
+    Val:"#suggestModal",
   })
   if (c.SuggestDisabled) {
     ret = append(ret, vugu.VGAttribute{

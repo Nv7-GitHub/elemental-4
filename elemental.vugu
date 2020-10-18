@@ -32,6 +32,26 @@
       <div vg-for="_, element := range (*c.Elements)" :style='"background-color:" + color + "; color: " + c.CalcColor(color)' vg-content="element.Name" vg-if="colInd == element.Color && c.IsFound(element.Index)" class="element fixed" @click="c.Show(element, color)"></div>
     </div>
 
+    <div class="modal fade" id="suggestModal" tabindex="-1" aria-labelledby="suggestModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="suggestModalLabel">New Suggestion</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            Make ur suggestion here (not rn obvi)...
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" @click="c.MakeSuggestion()">Save changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
 	  <div style="width: 100vw; height: 100vh; position: fixed; top: 0; left:0; bottom:0; right:0; z-index:-100;" @click="c.Showing = false"></div>
 </div>
 
@@ -48,7 +68,6 @@ type Elemental struct {
     FoundElement func([]int)
     SuggestDisabled *bool
     SuggestElement *func(vugu.EventEnv, Suggestion)
-    NewSuggestion *func()
     Suggestion Suggestion
     Username *string
 }
@@ -133,4 +152,7 @@ func (c *Elemental) IsFound(index int) bool {
   return false
 }
 
+func (c *Elemental) MakeSuggestion() {
+  fmt.Println(c.Suggestion)
+}
 </script>
