@@ -26,7 +26,7 @@
   </nav>
 
   <span vg-if="!c.Init" vg-content='c.Initialize()'>Loading...</span>
-  <main:Elemental :Elements="&c.Elements" :Found="&c.Found" :Colors="c.Colors" :Handle="c.Handle" vg-if="c.Logged" :FoundElement="c.FoundElement" :SuggestElement="&c.SuggestElement" :SuggestDisabled='&c.SuggestDisabled' :NewSuggestion="&c.NewSuggestion"></main:Elemental>
+  <main:Elemental :Elements="&c.Elements" :Found="&c.Found" :Colors="c.Colors" :Handle="c.Handle" vg-if="c.Logged" :FoundElement="c.FoundElement" :SuggestElement="&c.SuggestElement" :SuggestDisabled='&c.SuggestDisabled' :NewSuggestion="&c.NewSuggestion" :Username="&c.Username"></main:Elemental>
   <main:Login vg-if="!c.Logged" :Handle="c.Handle" :App="c.App" :Logged="c.LoggedIn"></main:Login>
   <main:Networking :App="c.App" :Id="c.Id" :Elements="&c.Elements" :FoundElement="&c.FoundElement" :Handle="c.Handle" :Found="&c.Found" vg-if="c.Logged" :Event="c.Event" :SuggestElement="&c.SuggestElement"></main:Networking>
 </div>
@@ -59,6 +59,7 @@ type User struct {
 type Suggestion struct {
   NewElement Element
   Producer [2]int
+  Votes int
 }
 
 // Prototype
@@ -135,6 +136,7 @@ type Root struct {
   SuggestDisabled bool `vugu:"data"`
   Event vugu.EventEnv
   NewSuggestion func()
+  Username string `vugu:"data"`
 }
 
 func (c *Root) Handle(err error) {
@@ -158,12 +160,13 @@ func (c *Root) Initialize() string {
   return ""
 }
 
-func (c *Root) LoggedIn(id string, event vugu.EventEnv) {
+func (c *Root) LoggedIn(id string, username string, event vugu.EventEnv) {
   event.Lock()
   c.Logged = true
   c.Id = id
   event.UnlockRender()
   c.Event = event
+  c.Username = username
 }
 
 func (c *Root) SuggestBtn() (ret []vugu.VGAttribute) {

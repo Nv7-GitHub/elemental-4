@@ -66,7 +66,7 @@ type Login struct {
     Password string `vugu:"data"`
     HasError bool `vugu:"data"`
     ErrorMessage string `vugu:"data"`
-    Logged func(string, vugu.EventEnv)
+    Logged func(string, string, vugu.EventEnv)
     Registering bool `vugu:"data"`
     Loading bool `vugu:"data"`
 }
@@ -88,7 +88,7 @@ func (c *Login) SignIn(event vugu.DOMEvent) {
       ee.UnlockRender()
       return
   }
-  c.Logged(user.OtherData.LocalID, event.EventEnv())
+  c.Logged(user.OtherData.LocalID, c.Email, event.EventEnv())
 }
 
 func (c *Login) Register(event vugu.DOMEvent) {
@@ -113,7 +113,7 @@ func (c *Login) Register(event vugu.DOMEvent) {
       ee.UnlockRender()
       return
   }
-  c.Logged(user.OtherData.LocalID, event.EventEnv())
+  c.Logged(user.OtherData.LocalID, c.Email, event.EventEnv())
 }
 
 func (c *Login) Login(event vugu.DOMEvent) {
