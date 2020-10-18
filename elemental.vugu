@@ -49,6 +49,8 @@ type Elemental struct {
     SuggestDisabled *bool
     SuggestElement *func(vugu.EventEnv, Suggestion)
     NewSuggestion *func()
+    Suggestion Suggestion
+    Username *string
 }
 
 func (c *Elemental) Initialize() string {
@@ -99,8 +101,22 @@ func (c *Elemental) Show(elem Element, color string) {
       (*c.Found) = append((*c.Found), first.Products[second.Index])
       sort.Ints(*c.Found)
       c.FoundElement(*c.Found)
+    } else {
+      c.Showing = false
+      c.Suggestion = Suggestion{
+        NewElement: Element {
+          Name: "Element Name Goes Here...",
+          Creator: "",
+          Products: make(map[int]int, 0),
+          Color: first.Color,
+          Index: -1,
+          Created: "",
+        },
+        Producer: [2]int{first.Index, second.Index},
+        Votes: 0,
+      }
+      (*c.SuggestDisabled) = false
     }
-    c.Showing = false
   }
 }
 
