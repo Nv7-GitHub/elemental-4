@@ -13,6 +13,7 @@ type Networking struct {
     Handle func(error)
     Found *[]int
     Event vugu.EventEnv
+    SuggestElement *func(vugu.EventEnv, Suggestion)
 }
 
 func (c *Networking) UpdateFound(found []int) {

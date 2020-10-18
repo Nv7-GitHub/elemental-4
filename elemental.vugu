@@ -46,6 +46,9 @@ type Elemental struct {
     SelectedColor string `vugu:"data"`
     Handle func(error)
     FoundElement func([]int)
+    SuggestDisabled *bool
+    SuggestElement *func(vugu.EventEnv, Suggestion)
+    NewSuggestion *func()
 }
 
 func (c *Elemental) Initialize() string {
@@ -80,6 +83,7 @@ func (c *Elemental) Show(elem Element, color string) {
     c.Showing = true
     c.Selected = elem
     c.SelectedColor = color
+    (*c.SuggestDisabled) = true
   } else {
     var first Element
     var second Element
@@ -106,7 +110,6 @@ func (c *Elemental) IsFound(index int) bool {
     if item < len(*c.Found) {
       return true
     } else {
-      
       return false
     }
   }
