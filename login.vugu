@@ -53,7 +53,7 @@ html, body {
         <a @click="c.Registering = !c.Registering" href="#"><span vg-if="c.Registering">Already have an account? Sign in!</span><span vg-if="!c.Registering">Need an account? Register!</span></a><br>
         <a vg-if="!c.Registering" href="#" @click="c.ResetPassword(event)">Forgot your password? Reset it!</a>
     </form>
-    <img style="position: absolute; top: 50%; left: 50%;" src="https://cdnjs.cloudflare.com/ajax/libs/galleriffic/2.0.1/css/loader.gif" vg-if="c.Loading">
+    <div style="position: absolute; top: 50%; left: 50%;"><img style="position: relative; bottom: 60px; right: 60px;" src="/logo.svg" vg-if="c.Loading" alt="" width="120" height="120" class="spin"></div>
 </div>
 
 <script type="application/x-go">
