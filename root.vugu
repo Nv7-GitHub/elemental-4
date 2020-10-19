@@ -40,6 +40,7 @@ import "github.com/Nv7-Github/firebase/db"
 import "github.com/vugu/vugu/vgform"
 import "encoding/json"
 import "sort"
+import "time"
 
 const requiredVotes = 5
 
@@ -184,6 +185,10 @@ func (c *Root) SuggestBtn() (ret []vugu.VGAttribute) {
   vugu.VGAttribute{
     Key:"data-target",
     Val:"#suggestModal",
+  },
+  vugu.VGAttribute{
+    Key:"id",
+    Val:"suggestBtn",
   })
   if (c.SuggestDisabled) {
     ret = append(ret, vugu.VGAttribute{
