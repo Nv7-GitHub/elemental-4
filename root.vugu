@@ -54,8 +54,10 @@ import "github.com/vugu/vugu/vgform"
 import "encoding/json"
 import "sort"
 import "time"
+import "strings"
 
 const requiredVotes = 5
+const colorSize = 2
 
 type Element struct {
   Name string
