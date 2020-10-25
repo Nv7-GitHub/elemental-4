@@ -39,9 +39,20 @@
   </nav>
 
   <span vg-if="!c.Init" vg-content='c.Initialize()'>Loading...</span>
-  <main:Elemental :Elements="&c.Elements" :Found="&c.Found" :Colors="c.Colors" :Handle="c.Handle" vg-if="c.Logged" :FoundElement="c.FoundElement" :SuggestElement="&c.SuggestElement" :SuggestDisabled='&c.SuggestDisabled' :Username="&c.Username"></main:Elemental>
-  <main:Login vg-if="!c.Logged" :Handle="c.Handle" :App="c.App" :Logged="c.LoggedIn"></main:Login>
-  <main:Networking :App="c.App" :Id="c.Id" :Elements="&c.Elements" :FoundElement="&c.FoundElement" :Handle="c.Handle" :Found="&c.Found" vg-if="c.Logged" :Event="c.Event" :SuggestElement="&c.SuggestElement"></main:Networking>
+
+  <main:Elemental :Elements="&c.Elements" :Found="&c.Found" :Colors="c.Colors" :Handle="c.Handle" vg-if="c.Logged" 
+  :FoundElement="c.FoundElement" :SuggestElement="&c.SuggestElement" 
+  :SuggestDisabled='&c.SuggestDisabled' :Username="&c.Username"></main:Elemental>
+
+  <main:Login vg-if="!c.Logged" :Handle="c.Handle" :App="c.App" :Logged="c.LoggedIn" :Loading="&c.Loading"></main:Login>
+
+  <main:Networking :App="c.App" :Id="c.Id" :Elements="&c.Elements" :FoundElement="&c.FoundElement" :Handle="c.Handle" 
+  :Found="&c.Found" vg-if="c.Logged" :Event="c.Event" :SuggestElement="&c.SuggestElement" :Loading="&c.Loading"></main:Networking>
+
+  <div style="position: absolute; top: 50%; left: 50%;">
+    <img style="position: relative; bottom: 60px; right: 60px;" src="/logo.svg" vg-if="c.Loading" 
+    alt="Loading..." width="120" height="120" class="spin">
+  </div>
 </div>
 
 <script type="application/x-go">
@@ -152,6 +163,7 @@ type Root struct {
   SuggestDisabled bool `vugu:"data"`
   Event vugu.EventEnv
   Username string `vugu:"data"`
+  Loading bool `vugu:"data"`
 }
 
 func (c *Root) Handle(err error) {
@@ -182,6 +194,7 @@ func (c *Root) LoggedIn(id string, username string, event vugu.EventEnv) {
   event.UnlockRender()
   c.Event = event
   c.Username = username
+  c.Loading = false
 }
 
 func (c *Root) SuggestBtn() (ret []vugu.VGAttribute) {

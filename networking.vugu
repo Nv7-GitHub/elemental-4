@@ -14,6 +14,7 @@ type Networking struct {
     Found *[]int
     Event vugu.EventEnv
     SuggestElement *func(vugu.EventEnv, Suggestion)
+    Loading *bool
 }
 
 func (c *Networking) UpdateFound(found []int) {
@@ -35,9 +36,19 @@ func (c *Networking) Initialize() string {
     (*c.FoundElement) = func (found []int) {
         go c.UpdateFound(found)
     }
+    (*c.SuggestElement) = func (event vugu.EventEnv, suggestion Suggestion) {
+        go c.Suggest(event, suggestion)
+    }
     c.Db = db.CreateDatabase(c.App)
     c.Init = true
     go c.GetFound()
     return ""
+}
+
+func (c *Networking) Suggest(event vugu.EventEnv, suggestion Suggestion) {
+    event.Lock()
+    (*c.Loading) = false // make true
+    event.UnlockRender()
+    fmt.Println("Ree")
 }
 </script>

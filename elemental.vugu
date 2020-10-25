@@ -66,7 +66,7 @@
           <div class="modal-footer">
             <button type="button" class="btn btn-muted" data-dismiss="modal">Close</button>
             <button type="button" class="btn btn-secondary" @click="c.Mode = !c.Mode; c.OpenModal(true)"><span vg-if="!c.Mode">Make Your Own Element</span><span vg-if="c.Mode">Vote for Element</span></button>
-            <button type="button" class="btn btn-primary" @click='c.MakeSuggestion(); Global().Call("jQuery", "#suggestModal").Call("modal", "toggle")'><span vg-if="!c.Mode">Vote</span><span vg-if="c.Mode">Send Suggestion</span></button>
+            <button type="button" class="btn btn-primary" @click='c.MakeSuggestion(event); Global().Call("jQuery", "#suggestModal").Call("modal", "toggle")'><span vg-if="!c.Mode">Vote</span><span vg-if="c.Mode">Send Suggestion</span></button>
           </div>
         </div>
       </div>
@@ -173,8 +173,13 @@ func (c *Elemental) IsFound(index int) bool {
   return false
 }
 
-func (c *Elemental) MakeSuggestion() {
-  fmt.Println(c.Suggestion)
+func (c *Elemental) MakeSuggestion(event vugu.DOMEvent) {
+  if c.Mode {
+    fmt.Println("New element", c.Suggestion)
+    (*c.SuggestElement)(event.EventEnv(), c.Suggestion)
+  } else {
+    fmt.Println("Existing element")
+  }
 }
 
 func (c *Elemental) OpenModal(retoggle bool) {
