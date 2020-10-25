@@ -53,7 +53,6 @@ html, body {
         <a @click="c.Registering = !c.Registering" href="#"><span vg-if="c.Registering">Already have an account? Sign in!</span><span vg-if="!c.Registering">Need an account? Register!</span></a><br>
         <a vg-if="!c.Registering" href="#" @click="c.ResetPassword(event)">Forgot your password? Reset it!</a>
     </form>
-    <img style="position: absolute; top: 50%; left: 50%;" src="https://cdnjs.cloudflare.com/ajax/libs/galleriffic/2.0.1/css/loader.gif" vg-if="c.Loading">
 </div>
 
 <script type="application/x-go">
@@ -66,9 +65,9 @@ type Login struct {
     Password string `vugu:"data"`
     HasError bool `vugu:"data"`
     ErrorMessage string `vugu:"data"`
-    Logged func(string, vugu.EventEnv)
+    Logged func(string, string, vugu.EventEnv)
     Registering bool `vugu:"data"`
-    Loading bool `vugu:"data"`
+    Loading *bool `vugu:"data"`
 }
 
 func (c *Login) Initialize() string {
@@ -84,11 +83,11 @@ func (c *Login) SignIn(event vugu.DOMEvent) {
       ee.Lock()
       c.HasError = true
       c.ErrorMessage = err.Error()
-      c.Loading = false
+      (*c.Loading) = false
       ee.UnlockRender()
       return
   }
-  c.Logged(user.OtherData.LocalID, event.EventEnv())
+  c.Logged(user.OtherData.LocalID, c.Email, event.EventEnv())
 }
 
 func (c *Login) Register(event vugu.DOMEvent) {
@@ -98,7 +97,7 @@ func (c *Login) Register(event vugu.DOMEvent) {
       ee.Lock()
       c.HasError = true
       c.ErrorMessage = err.Error()
-      c.Loading = false
+      (*c.Loading) = false
       ee.UnlockRender()
       return
   }
@@ -109,11 +108,11 @@ func (c *Login) Register(event vugu.DOMEvent) {
       ee.Lock()
       c.HasError = true
       c.ErrorMessage = err.Error()
-      c.Loading = false
+      (*c.Loading) = false
       ee.UnlockRender()
       return
   }
-  c.Logged(user.OtherData.LocalID, event.EventEnv())
+  c.Logged(user.OtherData.LocalID, c.Email, event.EventEnv())
 }
 
 func (c *Login) Login(event vugu.DOMEvent) {
@@ -122,18 +121,18 @@ func (c *Login) Login(event vugu.DOMEvent) {
   } else {
     go c.SignIn(event)
   }
-  c.Loading = true
+  (*c.Loading) = true
 }
 
 func (c *Login) Reset(ee vugu.EventEnv) {
   c.Auth.ResetPassword(c.Email)
   ee.Lock()
-  c.Loading = false
+  (*c.Loading) = false
   ee.UnlockRender()
 }
 
 func (c *Login) ResetPassword(event vugu.DOMEvent) {
   go c.Reset(event.EventEnv())
-  c.Loading = true
+  (*c.Loading) = true
 }
 </script>

@@ -16,10 +16,17 @@
 
 .movable {
   position: absolute !important;
+  z-index: 1;
 }
 
 .fixed {
   margin-right: 1vh;
+  z-index: 0;
+}
+
+.inline {
+  display: inline-block;
+}
 }
 </style>
 
@@ -30,6 +37,39 @@
 
     <div class="row" vg-for="colInd, color := range c.Colors">
       <div vg-for="_, element := range (*c.Elements)" :style='"background-color:" + color + "; color: " + c.CalcColor(color)' vg-content="element.Name" vg-if="colInd == element.Color && c.IsFound(element.Index)" class="element fixed" @click="c.Show(element, color)"></div>
+    </div>
+
+    <div class="modal fade" id="suggestModal" tabindex="-1" aria-labelledby="suggestModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="suggestModalLabel"><span vg-if="!c.Mode">Vote For an Element</span><span vg-if="c.Mode">Make Your Own Element</span></h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div vg-if="c.Mode" align="center">
+              <div :style='"background-color:" + c.Colors[(*c.Elements)[c.Suggestion.Producer[0]].Color] + "; color: " + c.CalcColor(c.Colors[(*c.Elements)[c.Suggestion.Producer[0]].Color])' vg-content="(*c.Elements)[c.Suggestion.Producer[0]].Name" class="element fixed inline"></div>
+              <span style="margin-left: 3vw;"> + </span>
+              <div :style='"background-color:" + c.Colors[(*c.Elements)[c.Suggestion.Producer[1]].Color] + "; color: " + c.CalcColor(c.Colors[(*c.Elements)[c.Suggestion.Producer[1]].Color])' vg-content="(*c.Elements)[c.Suggestion.Producer[1]].Name" class="element fixed inline"></div>
+              <span style="margin-left: 3vw;"> = </span>
+              <div :style='"background-color:" + c.Colors[c.Suggestion.NewElement.Color] + "; color: " + c.CalcColor(c.Colors[c.Suggestion.NewElement.Color])' class="element fixed inline"><vgform:Input :Value="vgform.StringPtr{&c.Suggestion.NewElement.Name}" type="text" style="border: none; background-color: transparent; width: 8vh; height: 2vh;"></vgform:Input></div>
+              <table class="element fixed inline">
+                <tr vg-for="i := 0; i < colorSize; i++">
+                  <td vg-for="j := 0; j < colorSize; j++" :style='c.GenTdStyle(i, j)' @click="c.Suggestion.NewElement.Color = (i*colorSize)+j; c.OpenModal(true)"></td>
+                </tr>
+              </table>
+            </div>
+            <div vg-if="!c.Mode">IN PRORESS</div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-muted" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-secondary" @click="c.Mode = !c.Mode; c.OpenModal(true)"><span vg-if="!c.Mode">Make Your Own Element</span><span vg-if="c.Mode">Vote for Element</span></button>
+            <button type="button" class="btn btn-primary" @click='c.MakeSuggestion(event); Global().Call("jQuery", "#suggestModal").Call("modal", "toggle")'><span vg-if="!c.Mode">Vote</span><span vg-if="c.Mode">Send Suggestion</span></button>
+          </div>
+        </div>
+      </div>
     </div>
 
 	  <div style="width: 100vw; height: 100vh; position: fixed; top: 0; left:0; bottom:0; right:0; z-index:-100;" @click="c.Showing = false"></div>
@@ -46,6 +86,11 @@ type Elemental struct {
     SelectedColor string `vugu:"data"`
     Handle func(error)
     FoundElement func([]int)
+    SuggestDisabled *bool
+    SuggestElement *func(vugu.EventEnv, Suggestion)
+    Suggestion Suggestion
+    Username *string
+    Mode bool `vugu:"data"`
 }
 
 func (c *Elemental) Initialize() string {
@@ -80,6 +125,7 @@ func (c *Elemental) Show(elem Element, color string) {
     c.Showing = true
     c.Selected = elem
     c.SelectedColor = color
+    (*c.SuggestDisabled) = true
   } else {
     var first Element
     var second Element
@@ -95,6 +141,21 @@ func (c *Elemental) Show(elem Element, color string) {
       (*c.Found) = append((*c.Found), first.Products[second.Index])
       sort.Ints(*c.Found)
       c.FoundElement(*c.Found)
+    } else if !has_product{
+      c.Showing = false
+      c.Suggestion = Suggestion{
+        NewElement: Element {
+          Name: "Element Name Goes Here...",
+          Creator: "",
+          Products: make(map[int]int, 0),
+          Color: first.Color,
+          Index: -1,
+          Created: "",
+        },
+        Producer: [2]int{first.Index, second.Index},
+        Votes: 0,
+      }
+      (*c.SuggestDisabled) = false
     }
     c.Showing = false
   }
@@ -106,11 +167,45 @@ func (c *Elemental) IsFound(index int) bool {
     if item < len(*c.Found) {
       return true
     } else {
-      
       return false
     }
   }
   return false
 }
 
+func (c *Elemental) MakeSuggestion(event vugu.DOMEvent) {
+  if c.Mode {
+    fmt.Println("New element", c.Suggestion)
+    (*c.SuggestElement)(event.EventEnv(), c.Suggestion)
+  } else {
+    fmt.Println("Existing element")
+  }
+}
+
+func (c *Elemental) OpenModal(retoggle bool) {
+  if !retoggle {
+    time.Sleep(time.Second/2)
+  }
+  Global().Call("jQuery", "#suggestModal").Call("modal", "toggle")
+  if retoggle {
+    go c.OpenModal(false)
+  }
+}
+
+func (c *Elemental) GenTdStyle(i, j int) string {
+  borderRadius := []string{"0", " 0", " 0", " 0"}
+  if i == 0 && j == 0 {
+    borderRadius[0] = "2vh"
+  }
+  if i == (colorSize - 1) && j == 0 {
+    borderRadius[3] = " 2vh"
+  }
+  if i == (colorSize - 1) && j == (colorSize - 1) {
+    borderRadius[2] = " 2vh"
+  }
+  if i == 0 && j == (colorSize - 1) {
+    borderRadius[1] = " 2vh"
+  }
+  return fmt.Sprintf("background-color: %s; height: %dvh; width: %dvh; border-radius: %s;", c.Colors[(i*colorSize)+j], (8+colorSize)/colorSize, (8+colorSize)/colorSize, strings.Join(borderRadius, ""))
+}
 </script>

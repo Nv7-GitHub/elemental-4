@@ -1,3 +1,14 @@
+<style>
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.spin{
+  animation: spin 2s linear infinite;
+}
+</style>
+
 <div>
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
@@ -11,21 +22,37 @@
 
       <nav class="collapse navbar-collapse" role="navigation">
         <ul class="navbar-nav ml-auto nav">
+        <!--
           <li class="nav-item">
             <a class="nav-link active">Something</a>
           </li>
           <li class="nav-item">
             <a class="nav-link">Something Else</a>
           </li>
+          -->
+          <form class="form-inline">
+            <button vg-attr="vugu.VGAttributeListerFunc(c.SuggestBtn)">Suggest</button>
+          </form>
         </ul>
       </nav>
     </div>
   </nav>
 
   <span vg-if="!c.Init" vg-content='c.Initialize()'>Loading...</span>
-  <main:Elemental :Elements="&c.Elements" :Found="&c.Found" :Colors="c.Colors" :Handle="c.Handle" vg-if="c.Logged" :FoundElement="c.FoundElement"></main:Elemental>
-  <main:Login vg-if="!c.Logged" :Handle="c.Handle" :App="c.App" :Logged="c.LoggedIn"></main:Login>
-  <main:Networking :App="c.App" :Id="c.Id" :Elements="&c.Elements" :FoundElement="&c.FoundElement" :Handle="c.Handle" :Found="&c.Found" vg-if="c.Logged" :Event="c.Event"></main:Networking>
+
+  <main:Elemental :Elements="&c.Elements" :Found="&c.Found" :Colors="c.Colors" :Handle="c.Handle" vg-if="c.Logged" 
+  :FoundElement="c.FoundElement" :SuggestElement="&c.SuggestElement" 
+  :SuggestDisabled='&c.SuggestDisabled' :Username="&c.Username"></main:Elemental>
+
+  <main:Login vg-if="!c.Logged" :Handle="c.Handle" :App="c.App" :Logged="c.LoggedIn" :Loading="&c.Loading"></main:Login>
+
+  <main:Networking :App="c.App" :Id="c.Id" :Elements="&c.Elements" :FoundElement="&c.FoundElement" :Handle="c.Handle" 
+  :Found="&c.Found" vg-if="c.Logged" :Event="c.Event" :SuggestElement="&c.SuggestElement" :Loading="&c.Loading"></main:Networking>
+
+  <div style="position: absolute; top: 50%; left: 50%;">
+    <img style="position: relative; bottom: 60px; right: 60px;" src="/logo.svg" vg-if="c.Loading" 
+    alt="Loading..." width="120" height="120" class="spin">
+  </div>
 </div>
 
 <script type="application/x-go">
@@ -37,6 +64,11 @@ import "github.com/Nv7-Github/firebase/db"
 import "github.com/vugu/vugu/vgform"
 import "encoding/json"
 import "sort"
+import "time"
+import "strings"
+
+const requiredVotes = 5
+const colorSize = 2
 
 type Element struct {
   Name string
@@ -49,6 +81,12 @@ type Element struct {
 
 type User struct {
   Found []int
+}
+
+type Suggestion struct {
+  NewElement Element
+  Producer [2]int
+  Votes int
 }
 
 // Prototype
@@ -121,7 +159,11 @@ type Root struct {
   Logged bool `vugu:"data"`
   Id string `vugu:"data"`
   FoundElement func([]int)
+  SuggestElement func(vugu.EventEnv, Suggestion)
+  SuggestDisabled bool `vugu:"data"`
   Event vugu.EventEnv
+  Username string `vugu:"data"`
+  Loading bool `vugu:"data"`
 }
 
 func (c *Root) Handle(err error) {
@@ -139,15 +181,49 @@ func (c *Root) Initialize() string {
   c.Handle(err)
   c.Id = "REE"
 
+  c.SuggestDisabled = true
+
   c.Init = true
   return ""
 }
 
-func (c *Root) LoggedIn(id string, event vugu.EventEnv) {
+func (c *Root) LoggedIn(id string, username string, event vugu.EventEnv) {
   event.Lock()
   c.Logged = true
   c.Id = id
   event.UnlockRender()
   c.Event = event
+  c.Username = username
+  c.Loading = false
+}
+
+func (c *Root) SuggestBtn() (ret []vugu.VGAttribute) {
+  ret = append(ret, vugu.VGAttribute{
+    Key:"class",
+    Val:"btn btn-outline-primary my-2 my-sm-0",
+  },
+  vugu.VGAttribute{
+    Key:"type",
+    Val:"reset",
+  },
+  vugu.VGAttribute{
+    Key:"data-toggle",
+    Val:"modal",
+  },
+  vugu.VGAttribute{
+    Key:"data-target",
+    Val:"#suggestModal",
+  },
+  vugu.VGAttribute{
+    Key:"id",
+    Val:"suggestBtn",
+  })
+  if (c.SuggestDisabled) {
+    ret = append(ret, vugu.VGAttribute{
+      Key:"disabled",
+      Val:"true",
+    })
+  }
+  return
 }
 </script>
