@@ -47,8 +47,31 @@ func (c *Networking) Initialize() string {
 
 func (c *Networking) Suggest(event vugu.EventEnv, suggestion Suggestion) {
     event.Lock()
-    (*c.Loading) = false // make true
+    (*c.Loading) = true
     event.UnlockRender()
-    fmt.Println("Ree")
+
+    existingData, err := c.Db.Get("/suggestions")
+    var existing map[int]map[int][]Element
+    c.Handle(err)
+    if string(existingData) != "null" {
+        c.Handle(json.Unmarshal(existingData, &existing))
+    } else {
+        existing = make(map[int]map[int][]Element)
+    }
+
+    fmt.Println(existing[suggestion.Producer[0]] == nil)
+
+    if existing[suggestion.Producer[0]] == nil {
+        existing[suggestion.Producer[0]] = map[int][]Element{suggestion.Producer[1]: []Element{suggestion.NewElement}}
+    } else {
+        existing[suggestion.Producer[0]][suggestion.Producer[1]] = append(existing[suggestion.Producer[0]][suggestion.Producer[1]], suggestion.NewElement)
+    }
+
+    
+    c.Db.SetData("/suggestions", existing)
+
+    event.Lock()
+    (*c.Loading) = false
+    event.UnlockRender()
 }
 </script>
